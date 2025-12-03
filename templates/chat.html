@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Chatbot Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            height: 95vh;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 35px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 15px;
+            opacity: 0.95;
+        }
+        
+        .language-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        
+        .clear-btn {
+            position: absolute;
+            top: 25px;
+            right: 35px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #f8f9fc;
+        }
+        
+        .message {
+            margin-bottom: 24px;
+            display: flex;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message.bot {
+            justify-content: flex-start;
+        }
+        
+        .message-content {
+            max-width: 75%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+        
+        .message.bot .message-content {
+            background: white;
+            color: #2d3748;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border-bottom-left-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .message-content a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .message-content img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+        
+        .message-info {
+            font-size: 11px;
+            margin-top: 8px;
+            opacity: 0.7;
+            font-style: italic;
+        }
+        
+        .input-container {
+            padding: 25px 30px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+        }
+        
+        #userInput {
+            flex: 1;
+            padding: 16px 22px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+            font-family: inherit;
+            background: #f8f9fc;
+        }
+        
+        #userInput:focus {
+            border-color: #667eea;
+            background: white;
+        }
+        
+        #sendBtn {
+            padding: 16px 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        #sendBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        #sendBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .typing {
+            display: none;
+            padding: 16px 20px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .typing.show {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .typing span {
+            height: 10px;
+            width: 10px;
+            background: #667eea;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        
+        .typing span:nth-child(1) { animation-delay: -0.32s; }
+        .typing span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+    
+        }
+        .car-image {
+    max-width: 100%;
+    width: 400px;
+    height: auto;
+    border-radius: 12px;
+    margin-top: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.car-image-container {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="clear-btn" onclick="clearChat()">🗑️ Clear</button>
+            <h1>🚗 Car Chatbot Assistant</h1>
+            <p>Intelligent AI-powered car information assistant</p>
+            <div class="language-badge">🌍 English • العربية • Tunisian • Français</div>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot">
+                <div class="message-content">
+                    👋 <strong>Hello!</strong> I'm your car assistant.<br><br>
+                    I can help with:<br>
+                    • 💰 Prices<br>
+                    • ✅ Availability<br>
+                    • 📋 Specifications<br>
+                    • ⚖️ Comparisons<br><br>
+                    Ask me in <strong>English, Arabic, Tunisian, or French</strong>!
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="userInput" 
+                placeholder="Type your question... (e.g., 'Is BMW X5 available?' or 'BMW X5 mawjouda?')" 
+                onkeypress="handleKeyPress(event)"
+            >
+            <button id="sendBtn" onclick="sendMessage()">Send 📤</button>
+        </div>
+    </div>
+
+    <script>
+        console.log('✅ Chat loaded');
+        
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, 'user');
+            input.value = '';
+            
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+            input.disabled = true;
+            
+            const typingDiv = showTyping();
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                typingDiv.remove();
+                
+                if (data.error) {
+                    addMessage('❌ Error: ' + data.error, 'bot');
+                } else {
+                    let infoText = '';
+                    if (data.detected_language && data.detected_language !== 'en') {
+                        infoText = `🌍 ${data.detected_language.toUpperCase()}`;
+                        if (data.translated_to) {
+                            infoText += ` → "${data.translated_to}"`;
+                        }
+                        infoText += ` | 🎯 ${data.intent}`;
+                    } else {
+                        infoText = `🎯 ${data.intent}`;
+                    }
+                    
+                    // Add image if present
+                   // Find this part in addMessage function:
+if (data.image_url) {
+    addMessage(data.response + `\n\n<div class="car-image-container">📸 <strong>Here's the ${data.car_data ? data.car_data.Name : 'car'}:</strong><br><img src="${data.image_url}" alt="Car" class="car-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span style="display:none; color: #999;">Image not available</span></div>`, 'bot', infoText);
+} else {
+    addMessage(data.response, 'bot', infoText);
+}
+                }
+            } catch (error) {
+                typingDiv.remove();
+                addMessage('❌ Connection error: ' + error.message, 'bot');
+            }
+            
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send 📤';
+            input.disabled = false;
+            input.focus();
+        }
+        
+        function addMessage(text, sender, info = null) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            let infoHtml = '';
+            if (info && sender === 'bot') {
+                infoHtml = `<div class="message-info">${info}</div>`;
+            }
+            
+            let formattedText = text
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+                .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    ${formattedText}
+                    ${infoHtml}
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function showTyping() {
+            const chatContainer = document.getElementById('chatContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.innerHTML = `
+                <div class="typing show">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return typingDiv;
+    }
+    
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+    
+    async function clearChat() {
+        if (confirm('Clear chat?')) {
+            await fetch('/clear', { method: 'POST' });
+            location.reload();
+        }
+    }
+    
+    window.onload = function() {
+        document.getElementById('userInput').focus();
+    };
+</script>
+</body>
+</html>
+
+
+
