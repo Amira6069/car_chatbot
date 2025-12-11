@@ -3,3 +3,6 @@ flask-cors
 openai
 langdetect
 deep-translator
+scikit-learn
+numpy
+pandas

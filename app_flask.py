@@ -11,6 +11,7 @@ lang_proc = None
 intent_clf = None
 query_handler = None
 external_handler = None
+ood_detector = None
 
 try:
     print("Loading language processor...")
@@ -46,6 +47,15 @@ try:
     print("✅ External handler loaded")
 except Exception as e:
     print(f"❌ Error: {e}")
+    traceback.print_exc()
+
+try:
+    print("Loading OOD detector...")
+    from ood_detector import OODDetector
+    ood_detector = OODDetector(dataset_path='data/cars.csv')
+    print("✅ OOD detector loaded")
+except Exception as e:
+    print(f"❌ OOD Error: {e}")
     traceback.print_exc()
 
 print("="*60)
@@ -147,7 +157,31 @@ def chat():
         # Language Processing
         english_text, detected_lang = lang_proc.process(user_message)
         print(f"✅ Translated: '{english_text}' (lang: {detected_lang})")
-        
+
+        # OOD Detection (conservative)
+        try:
+            if ood_detector:
+                in_domain, ood_score = ood_detector.is_in_domain(english_text)
+                print(f"🔎 OOD score: {ood_score} → in_domain={in_domain}")
+                if not in_domain:
+                    # If explicit car names are present, prefer in-domain
+                    car_names_tmp = intent_clf.extract_car_name(english_text)
+                    if car_names_tmp:
+                        print("⚠ OOD predicted but explicit car names present — keeping in-domain")
+                    else:
+                        print("⚠ OOD detected by model — routing to external handler")
+                        response = external_handler.handle_general_question(english_text)
+                        intent_info = "OUT-OF-DOMAIN (OOD_MODEL)"
+                        last_car_context = None
+                        return jsonify({
+                            'response': response,
+                            'detected_language': str(detected_lang),
+                            'translated_to': english_text if detected_lang != 'en' else None,
+                            'intent': intent_info
+                        })
+        except Exception as e:
+            print(f"⚠ OOD check failed: {e}")
+
         # Intent Classification
         is_car_related = intent_clf.is_car_related(english_text)
         intent = intent_clf.classify(english_text)
