@@ -34,7 +34,7 @@ class OODDetector:
         texts = []
         for _, row in df.iterrows():
             parts = []
-            for col in ['Name', 'Brand', 'Model', 'Body_Type', 'Color']:
+            for col in ['Make', 'Model', 'Vehicle Style', 'Transmission Type', 'Vehicle Size']:
                 if col in df.columns and pd.notna(row.get(col)):
                     parts.append(str(row.get(col)))
             texts.append(' '.join(parts))
