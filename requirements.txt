@@ -6,3 +6,6 @@ deep-translator
 scikit-learn
 numpy
 pandas
+groq
+python-dotenv
+googletrans

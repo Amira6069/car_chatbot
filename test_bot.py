@@ -30,7 +30,7 @@ except Exception as e:
 print("\n3️⃣ Testing query_handler.py...")
 try:
     from query_handler import QueryHandler
-    qh = QueryHandler('data/cars.csv')
+    qh = QueryHandler('data/cars2.csv')
     print("   ✅ Query Handler works!")
 except Exception as e:
     print(f"   ❌ Query Handler FAILED: {e}")

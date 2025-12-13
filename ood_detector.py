@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 class OODDetector:
-    def __init__(self, dataset_path='data/cars.csv', model_path='models/ood_detector.pkl', method='isolation', contamination=0.02):
+    def __init__(self, dataset_path='data/cars2.csv', model_path='models/ood_detector.pkl', method='isolation', contamination=0.02):
         self.dataset_path = dataset_path
         self.model_path = model_path
         self.method = method
@@ -104,6 +104,11 @@ class OODDetector:
         """
         try:
             x = self.vectorizer.transform([text])
+            
+            # Heuristic: If text contains NO known words from dataset, it is likely OOD
+            if x.nnz == 0:
+                return False, -1.0
+                
             try:
                 score = float(self.model.decision_function(x.toarray())[0])
             except Exception:

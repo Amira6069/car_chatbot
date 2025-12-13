@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 class QueryHandler:
-    def __init__(self, dataset_path='data/cars.csv'):
+    def __init__(self, dataset_path='data/cars2.csv'):
         if os.path.exists(dataset_path):
             self.df = pd.read_csv(dataset_path)
             print(f"✓ Dataset: {len(self.df)} cars")
