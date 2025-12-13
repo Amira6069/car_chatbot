@@ -76,6 +76,7 @@ Intent definitions:
 Important rules:
 - Convert brand names to lowercase (BMW → bmw, Mercedes → mercedes-benz, Mercedes-Benz → mercedes-benz)
 - For price: "under X" → max_price=X, "between X and Y" → min_price=X + max_price=Y, "over X" → min_price=X
+- Convert 'k' and 'm' suffixes to numbers (e.g. 5k -> 5000, 1.5m -> 1500000)
 - For fuel questions: set fuel_efficiency=true
 - Return ONLY valid JSON, no explanations
 
