@@ -60,10 +60,10 @@ Analyze and return ONLY a JSON object with this structure:
         "min_price": number or null,
         "max_price": number or null,
         "vehicle_style": "suv|sedan|coupe|wagon|hatchback|pickup|minivan or null",
+        "sort_order": "price_asc|price_desc|newest|default",
         "fuel_efficiency": true if user asks about MPG/fuel/gas consumption,
         "min_year": number or null,
-        "max_year": number or null,
-        "transmission": "automatic|manual or null"
+        "max_year": number or null
     }}
 }}
 
@@ -86,6 +86,7 @@ Examples:
 "Compare BMW M6 to Toyota Previa" → {{"intent": "compare", "entities": {{"models_to_compare": ["m6", "previa"]}}}}
 "How much fuel does Honda Civic consume" → {{"intent": "specs", "entities": {{"make": "honda", "model": "civic", "fuel_efficiency": true}}}}
 "Mercedes between 20k and 50k" → {{"intent": "search", "entities": {{"make": "mercedes-benz", "min_price": 20000, "max_price": 50000}}}}
+"I want a cheap toyota" → {{"intent": "search", "entities": {{"make": "toyota", "sort_order": "price_asc"}}}}
 
 Now analyze: "{user_text}"
 """

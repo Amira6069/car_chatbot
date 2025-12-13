@@ -84,11 +84,6 @@ class SmartQueryBuilder:
         if entities.get('max_year'):
             df_filtered = df_filtered[df_filtered['Year'] <= entities['max_year']]
         
-        # Filter by transmission
-        if entities.get('transmission'):
-            trans = entities['transmission'].lower()
-            df_filtered = df_filtered[df_filtered['Transmission Type'].str.lower().str.contains(trans, na=False)]
-        
         return df_filtered
     
     def _handle_search(self, entities):
@@ -98,26 +93,40 @@ class SmartQueryBuilder:
         if len(df_filtered) == 0:
             return "😔 Sorry, no cars match your criteria. Try adjusting your filters!"
         
-        # Sort by relevance
-        if entities.get('fuel_efficiency'):
+        # Sort logic
+        sort_order = entities.get('sort_order', 'default')
+        if sort_order == 'price_asc':
+            df_filtered = df_filtered.sort_values('MSRP', ascending=True)
+            print("   ✓ Sorting by Lowest Price")
+        elif sort_order == 'price_desc':
+            df_filtered = df_filtered.sort_values('MSRP', ascending=False)
+            print("   ✓ Sorting by Highest Price")
+        elif sort_order == 'newest':
+            df_filtered = df_filtered.sort_values('Year', ascending=False)
+        elif entities.get('fuel_efficiency'):
             df_filtered = df_filtered.sort_values('highway MPG', ascending=False)
         else:
+            # Default sort: Recent + Price (balanced)
             df_filtered = df_filtered.sort_values(['Year', 'MSRP'], ascending=[False, True])
         
         # Top results
-        top_results = df_filtered.head(5)
+        # If "cheap" was requested (price_asc), show top 3 specifically
+        limit = 3 if sort_order == 'price_asc' else 5
+        top_results = df_filtered.head(limit)
         
-        response = f"🚗 **Found {len(df_filtered)} cars!** Here are the top {len(top_results)}:\n\n"
+        response = f"🚗 **Found {len(df_filtered)} cars!** Here are the best options:\n\n"
         
         for idx, row in top_results.iterrows():
-            response += f"**{int(row['Year'])} {row['Make'].title()} {row['Model'].title()}**\n"
-            response += f"   💰 Price: ${int(row['MSRP']):,}\n"
-            response += f"   ⛽ MPG: {int(row['city mpg'])} city / {int(row['highway MPG'])} highway\n"
-            response += f"   🚗 Type: {row['Vehicle Style']}\n"
-            response += f"   ⚙️ Engine: {int(row['Engine HP'])} HP\n\n"
+            response += f"### {int(row['Year'])} {row['Make'].title()} {row['Model'].title()}\n"
+            response += f"💰 **Price:** ${int(row['MSRP']):,}\n"
+            response += f"📏 **Size:** {row['Vehicle Size']} | **Style:** {row['Vehicle Style']}\n"
+            response += f"⚙️ **Engine:** {int(row['Engine HP'])} HP ({row['Engine Cylinders']} cyl)\n"
+            response += f"🕹️ **Transmission:** {row['Transmission Type']}\n"
+            response += f"⛽ **MPG:** {int(row['city mpg'])} city / {int(row['highway MPG'])} hwy\n\n"
+            response += f"---\n"
         
-        if len(df_filtered) > 5:
-            response += f"_...and {len(df_filtered) - 5} more results._"
+        if len(df_filtered) > limit:
+            response += f"\n_...and {len(df_filtered) - limit} more results._"
         
         return response
     

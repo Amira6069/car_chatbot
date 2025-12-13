@@ -1,121 +1,114 @@
 
-# 🚗 Intelligent Car Chatbot
+# 🚗 Chatbot Automobile Intelligent
 
-Welcome to the **Intelligent Car Chatbot**, an advanced AI-powered assistant designed to understand natural language queries about cars, whether in **English**, **French**, or **Tunisian Dialect**.
+Bienvenue sur le **Chatbot Automobile Intelligent**, un assistant avancé propulsé par l'IA, conçu pour comprendre vos questions sur les voitures en **Anglais**, **Français**, ou **Dialecte Tunisien**.
 
-Unlike simple rule-based bots, this system uses a **Large Language Model (LLM)** to understand complex intents and an **Out-Of-Domain (OOD) Detector** to stay focused on its expertise.
-
----
-
-## 🏗️ Architecture & Flow (How it Works)
-
-The application follows a robust "Retrieve & Generate" pipeline. Here is the exact journey of a user query:
-
-### 1. 📥 Input & Language Processing
-- **File**: `app2.py` → `language_processor.py`
-- **Action**: The user speaks. The system detects the language.
-- **Magic**: If the user speaks **Tunisian Dialect** (e.g., *"nheb karhba rkhissa"*), it is automatically translated to standardized English (*"I want a cheap car"*) before processing.
-
-### 2. 🛡️ The Guardian (OOD Detection)
-- **File**: `ood_detector.py`
-- **Action**: Before using expensive resources, the system checks: *"Is this actually about cars?"*
-- **Tech**: Uses **TF-IDF Vectorization** + **One-Class SVM**.
-- **Outcome**: 
-  - "Chicken recipe?" ❌ Blocked immediately.
-  - "Toyota price?" ✅ Passed to the Brain.
-
-### 3. 🧠 The Brain (Intent Analysis)
-- **File**: `llm_analyzer.py`
-- **Tech**: **Groq API** (Llama-3.3-70B model).
-- **Action**: The LLM analyzes the English text to extract structured data (JSON).
-- **Example**: 
-  - *Input*: "BMW under 20k"
-  - *Output*: `{"intent": "search", "entities": {"make": "bmw", "max_price": 20000}}`
-
-### 4. 🔧 The Engine (Query Execution)
-- **File**: `smart_query_builder.py`
-- **Action**: Takes the structured JSON and builds a **Pandas** query to filter the dataset (`data/cars2.csv`).
-- **Logic**: It handles sorting, filtering (min/max price, year), and specific requests like "Fuel Economy".
+Contrairement aux bots basiques, ce système utilise un **Grand Modèle de Langage (LLM)** pour saisir vos intentions complexes et un **Détecteur Hors-Domaine (OOD)** pour rester concentré sur son expertise automobile.
 
 ---
 
-## 🚀 Setup & Run
+## 🏗️ Architecture & Flux (Comment ça marche ?)
 
-1. **Install Dependencies**:
+L'application suit une architecture robuste de type "Retrieve & Generate". Voici le trajet exact d'une requête utilisateur :
+
+### 1. 📥 Entrée & Traitement du Langage
+- **Fichier** : `app2.py` → `language_processor.py`
+- **Action** : L'utilisateur parle. Le système détecte la langue.
+- **Magie** : Si l'utilisateur parle en **Tunisien** (ex: *"nheb karhba rkhissa"*), c'est traduit automatiquement en Anglais (*"I want a cheap car"*) avant d'être traité.
+
+### 2. 🛡️ Le Gardien (Détection OOD)
+- **Fichier** : `ood_detector.py`
+- **Action** : Avant d'utiliser des ressources coûteuses, le système vérifie : *"Est-ce que ça parle vraiment de voitures ?"*
+- **Technologie** : Utilise **TF-IDF Vectorization** + **One-Class SVM**.
+- **Résultat** : 
+  - "Recette de pizza ?" ❌ Bloqué immédiatement.
+  - "Prix d'une Toyota ?" ✅ Passe au Cerveau.
+
+### 3. 🧠 Le Cerveau (Analyse d'Intention)
+- **Fichier** : `llm_analyzer.py`
+- **Technologie** : **Groq API** (Modèle Llama-3.3-70B).
+- **Action** : Le LLM analyse le texte pour extraire des données structurées (JSON).
+- **Exemple** : 
+  - *Entrée* : "Une BMW pas chère"
+  - *Sortie* : `{"intent": "search", "entities": {"make": "bmw", "sort_order": "price_asc"}}`
+
+### 4. 🔧 Le Moteur (Exécution de la Requête)
+- **Fichier** : `smart_query_builder.py`
+- **Action** : Prend le JSON structuré et construit une requête **Pandas** complexe pour filtrer le fichier `data/cars2.csv`.
+- **Capacités** : Gère les filtres de prix, taille, transmission, et génère un affichage détaillé type catalogue.
+
+---
+
+## 🚀 Installation & Lancement
+
+1. **Installer les dépendances** :
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Configure Environment**:
-   Create a `.env` file and add your Groq API Key:
+2. **Configurer l'environnement** :
+   Créez un fichier `.env` et ajoutez votre Clé API Groq :
    ```env
-   GROQ_API_KEY=your_actual_api_key_here
+   GROQ_API_KEY=votre_cle_api_ici
    ```
 
-3. **Run the Application**:
+3. **Lancer l'application** :
    ```bash
    python app2.py
    ```
-   *The server will start at `http://127.0.0.1:5000`*
+   *Le serveur démarrera sur `http://127.0.0.1:5000`*
 
-4. **Testing (Unit Tests)**:
+4. **Lancer les tests** :
    ```bash
-   python test_bot.py
+   python test_chatbot.py
    ```
 
 ---
 
-## 🧪 Demo Scenarios (Ready for Presentation)
+## 🧪 Scénarios de Démo (Prêts pour la Présentation)
 
-Use these queries to demonstrate the full capabilities of the bot to your professor.
+Utilisez ces requêtes exactes pour démontrer toute la puissance de votre projet au professeur.
 
-### 1️⃣ Basic Search & OOD (The Basics)
-*Target: Show that the bot works and stays on topic.*
+### 1️⃣ Recherche Budgétaire & Tri (🆕 Nouveau !)
+*Objectif : Montrer que le bot comprend "pas cher" et trie les résultats.*
 
--   **User**: "Hello my friend"
-    *   **Response**: *Rejected (Out-Of-Domain).*
--   **User**: "Show me all Toyota cars"
-    *   **Response**: *Returns a list of Toyota cars.*
+-   **Utilisateur** : "I want a cheap toyota" (Ou en Tunisien "nheb toyota rkhissa")
+    *   **Logique** : Détecte `sort_order: price_asc`
+    *   **Résultat** : Affiche les Toyota les moins chères en premier (ex: Toyota Yaris, Tercel...).
 
-### 2️⃣ Multilingual & Tunisian Dialect (The "Wow" Factor)
-*Target: Show the translation pipeline.*
 
--   **User**: "b9addech el golf mawjouda ?" (Combien coûte la Golf ?)
-    *   **Internal**: Translated to *"how much is golf available"*
-    *   **Response**: *Detailed price and specs for Volkswagen Golf.*
+### 3️⃣ Filtres & Logique Min/Max
+*Objectif : Montrer la gestion des chiffres.*
 
-### 3️⃣ Advanced Filtering (The Technical Part)
-*Target: Show the Min/Max logic we implemented.*
+-   **Utilisateur** : "I want a BMW between 5k and 20k"
+    *   **Logique** : `min_price=5000`, `max_price=20000`
+    *   **Résultat** : Liste les BMW dans ce budget exact.
 
--   **User**: "I want a BMW between 5k and 20k"
-    *   **Logic**: `min_price=5000`, `max_price=20000`
-    *   **Response**: *Lists BMWs within that specific budget.*
+### 4️⃣ Multilingue & Dialecte (L'Effet Wow)
+*Objectif : Montrer la traduction en temps réel.*
 
-### 4️⃣ Specific Specs & Formatting
-*Target: Show entity extraction precision.*
+-   **Utilisateur** : "b9addech el golf mawjouda ?"
+    *   **Interne** : Traduit en *"how much is golf available"*
+    *   **Résultat** : Fiche technique et prix de la Volkswagen Golf.
 
--   **User**: "How much fuel does a Toyota Previa consume?"
-    *   **Logic**: Detects `fuel_efficiency=True`
-    *   **Response**: *Focuses specifically on City/Highway MPG.*
+### 5️⃣ Détails & Spécifications (Affichage Riche)
+*Objectif : Montrer le nouvel affichage détaillé.*
 
-### 5️⃣ Comparison
-*Target: Show complex multi-entity handling.*
-
--   **User**: "Compare BMW M6 and Toyota Camry"
-    *   **Response**: *Side-by-side technical comparison.*
+-   **Utilisateur** : "give me details about audi a4"
+    *   **Résultat** : Affiche une fiche complète (Prix, MPG Ville/Autoroute, Cheval-vapeur, Style...).
 
 ---
 
-## 📁 Project Structure
+## 📁 Structure du Projet
 
-| File | Purpose |
-|------|---------|
-| `app2.py` | Main Flask application (Controller) |
-| `language_processor.py` | Handes Dialect/Language translation |
-| `ood_detector.py` | Filters irrelevant queries (Security) |
-| `llm_analyzer.py` | **The AI Brain**: Extracts intents & entities |
-| `smart_query_builder.py` | Query Engine: Filters the CSV data |
-| `data/cars2.csv` | The Database |
+| Fichier | Rôle |
+|---------|------|
+| `app2.py` | Application Principale (Serveur Flask) |
+| `language_processor.py` | Traducteur (Gère le Tunisien) |
+| `ood_detector.py` | Sécurité (Bloque les questions hors-sujet) |
+| `llm_analyzer.py` | **Cerveau IA** : Convertit le texte en intentions JSON |
+| `smart_query_builder.py` | Moteur de Recherche : Filtre et formate les données |
+| `data/cars2.csv` | La Base de Données |
 
 ---
-*Created by Hejer for the Advanced Data Science Project.*
+*Projet réalisé par Hejer pour le cours de Data Science Avancée.*
